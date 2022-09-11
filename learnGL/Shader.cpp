@@ -32,7 +32,7 @@ enum class ShaderError {
 	Linking,
 };
 
-unsigned handleShaderError(unsigned id, ShaderError e) {
+void handleShaderError(unsigned id, ShaderError e) {
 	auto status = e == ShaderError::Linking ? GL_LINK_STATUS : GL_COMPILE_STATUS;
 
 	int success;
@@ -57,6 +57,12 @@ unsigned handleShaderError(unsigned id, ShaderError e) {
 		char infoLog[512];
 		glGetShaderInfoLog(id, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::" << error << infoLog << std::endl;
+		/*
+		std::ofstream myfile;
+		myfile.open("error.txt");
+		myfile << "ERROR::SHADER::" << error << infoLog;
+		myfile.close();
+		*/
 	}
 }
 

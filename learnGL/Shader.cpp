@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-const char* readShaderFile(const char* path) {
+ std::string readShaderFile(const char* path) {
 	std::string code = "";
 	std::ifstream file;
 
@@ -12,13 +12,13 @@ const char* readShaderFile(const char* path) {
 		stream << file.rdbuf();
 		file.close();
 		code = stream.str();
-
 	}
 	catch (std::ifstream::failure e) {
-		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ:" << path << std::endl;
+		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ:" << e.what() << std::endl;
 	}
 
-	return code.c_str();
+	return code;
+
 }
 
 enum class ShaderType {
@@ -66,9 +66,10 @@ void handleShaderError(unsigned id, ShaderError e) {
 	}
 }
 
-unsigned compileShader(const char* code, ShaderType type) {
+unsigned compileShader(std::string code, ShaderType type) {
+	const char* c = code.c_str();
 	unsigned id = glCreateShader(GLenum(type));
-	glShaderSource(id, 1, &code, NULL);
+	glShaderSource(id, 1, &c, NULL);
 	glCompileShader(id);
 
 	handleShaderError(id, type == ShaderType::Vertex? ShaderError::Vertex: ShaderError::Fragment);
@@ -90,8 +91,8 @@ unsigned linkShader(unsigned vertex, unsigned fragment) {
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
-	const char* vShaderCode = readShaderFile(vertexPath);
-	const char* fShaderCode = readShaderFile(fragmentPath);
+	auto vShaderCode = readShaderFile(vertexPath);
+	auto fShaderCode = readShaderFile(fragmentPath);
 
 	auto vertex = compileShader(vShaderCode, ShaderType::Vertex);
 	auto fragment = compileShader(fShaderCode, ShaderType::Fragment);
